@@ -19,14 +19,15 @@ jobs:
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r27d
-          add-to-path: true # 直接把编译器加入系统PATH，无需手动拼路径
 
       - name: 交叉编译内核补丁
         run: |
           mkdir -p build
           cd build
-          # 直接调用环境内已加入PATH的编译器，不再手写长路径
-          aarch64-linux-android21-clang++ ../main.cpp -o patched_kernel_arm64
+          NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}
+          COMPILER_CXX="$NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang++"
+          chmod +x "$COMPILER_CXX"
+          "$COMPILER_CXX" ../main.cpp -o patched_kernel_arm64
 
       - name: 上传编译产物
         uses: actions/upload-artifact@v4
