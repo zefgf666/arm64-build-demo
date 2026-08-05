@@ -18,7 +18,7 @@ jobs:
           unzip -q android-ndk-r27d-linux.zip
           echo "NDK_PATH=$PWD/android-ndk-r27d" >> $GITHUB_ENV
 
-      - name: ARM64编译环境测试（后续在此加你的编译命令）
+      - name: ARM64编译环境测试+内核补丁编译
         run: |
           mkdir -p build
           cd build
@@ -26,5 +26,11 @@ jobs:
           CC=${{ env.NDK_PATH }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang
           CXX=${{ env.NDK_PATH }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang++
           echo "编译器路径校验完成：$CXX"
-          # ========== 下方替换成你自己的源码编译指令 ==========
-          # 示例：$CXX ../main.cpp -o app_arm64
+          # 编译你的内核补丁源码（main.cpp 替换为你的实际源码文件名）
+          $CXX ../main.cpp -o patched_kernel_arm64
+
+      - name: 上传编译产物（关键新增，构建后可下载）
+        uses: actions/upload-artifact@v4
+        with:
+          name: arm64-patched-kernel
+          path: build/patched_kernel_arm64
