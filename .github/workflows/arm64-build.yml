@@ -20,6 +20,9 @@ jobs:
         with:
           ndk-version: r27d
 
+      - name: 列出仓库所有文件（帮你看源码真实路径）
+        run: ls -R
+
       - name: 交叉编译内核补丁
         run: |
           mkdir -p build
@@ -27,7 +30,8 @@ jobs:
           NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}
           COMPILER_CXX="$NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang++"
           chmod +x "$COMPILER_CXX"
-          "$COMPILER_CXX" ../main.cpp -o patched_kernel_arm64
+          # 重点：等ls命令跑完，看日志里你的cpp真实文件名和路径，替换下面路径！
+          "$COMPILER_CXX" 你的真实源码路径.cpp -o patched_kernel_arm64
 
       - name: 上传编译产物
         uses: actions/upload-artifact@v4
