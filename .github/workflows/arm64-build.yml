@@ -14,23 +14,19 @@ jobs:
       - name: 安装基础依赖
         run: sudo apt update && sudo apt install unzip -y
 
-      # 官方工具自动部署NDK，无手动下载网络问题
       - name: 自动配置NDK r27d
+        id: setup-ndk
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r27d
-          add-to-path: false
-      - name: 注入NDK环境变量
-        run: echo "NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}" >> $GITHUB_ENV
+          add-to-path: true # 直接把编译器加入系统PATH，无需手动拼路径
 
       - name: 交叉编译内核补丁
         run: |
           mkdir -p build
           cd build
-          CC=${{ env.NDK_PATH }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang
-          CXX=${{ env.NDK_PATH }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang++
-          # 务必把main.cpp替换成你仓库真实的源码文件名
-          $CXX ../main.cpp -o patched_kernel_arm64
+          # 直接调用环境内已加入PATH的编译器，不再手写长路径
+          aarch64-linux-android21-clang++ ../main.cpp -o patched_kernel_arm64
 
       - name: 上传编译产物
         uses: actions/upload-artifact@v4
