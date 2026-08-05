@@ -3,7 +3,6 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -11,25 +10,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: 手动安装NDK r27d
+      - name: 安装基础依赖
+        run: sudo apt update && sudo apt install unzip wget -y
+
+      - name: 下载配置NDK
         run: |
-          sudo apt update -y
-          wget https://dl.google.com/android/repository/android-ndk-r27d-linux.zip
+          wget https://mirrors.huaweicloud.com/android-ndk/android-ndk-r27d-linux.zip
           unzip -q android-ndk-r27d-linux.zip
           echo "NDK_PATH=$PWD/android-ndk-r27d" >> $GITHUB_ENV
 
-      - name: ARM64编译环境测试+内核补丁编译
+      - name: 交叉编译内核补丁
         run: |
           mkdir -p build
           cd build
-          # 定义安卓ARM64编译器
           CC=${{ env.NDK_PATH }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang
           CXX=${{ env.NDK_PATH }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang++
-          echo "编译器路径校验完成：$CXX"
-          # 编译你的内核补丁源码（main.cpp 替换为你的实际源码文件名）
+          # 重点：把main.cpp改成你仓库真实的源码文件名，比如patch.cpp/kernel_patch.cpp
           $CXX ../main.cpp -o patched_kernel_arm64
 
-      - name: 上传编译产物（关键新增，构建后可下载）
+      - name: 上传编译产物
         uses: actions/upload-artifact@v4
         with:
           name: arm64-patched-kernel
