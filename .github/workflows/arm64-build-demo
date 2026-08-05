@@ -1,0 +1,14 @@
+name: ARM64 Build Task
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  arm64_build:
+    runs-on: ubuntu-latest-arm64
+    steps:
+      - name: 拉取仓库代码
+        uses: actions/checkout@v4
