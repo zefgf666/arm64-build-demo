@@ -1,9 +1,7 @@
-name: ARM64 Cross Build Task
+name: ARM64交叉构建任务
 on:
   push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -11,17 +9,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Install NDK r27d manually（避开第三方Action兼容问题）
+      - name: 手动安装NDK r27d
         run: |
-          sudo apt update
+          sudo apt update -y
           wget https://dl.google.com/android/repository/android-ndk-r27d-linux.zip
           unzip -q android-ndk-r27d-linux.zip
           echo "NDK_PATH=$PWD/android-ndk-r27d" >> $GITHUB_ENV
 
-      - name: Test ARM64 compile env
+      - name: ARM64编译环境测试（后续在此加你的编译命令）
         run: |
           mkdir -p build
           cd build
-          echo "Environment ready, path: ${{ env.NDK_PATH }}"
+          # 定义安卓ARM64编译器
+          CC=${{ env.NDK_PATH }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang
+          CXX=${{ env.NDK_PATH }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang++
+          echo "编译器路径校验完成：$CXX"
+          # ========== 下方替换成你自己的源码编译指令 ==========
+          # 示例：$CXX ../main.cpp -o app_arm64
