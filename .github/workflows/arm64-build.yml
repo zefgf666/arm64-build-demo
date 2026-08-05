@@ -4,23 +4,22 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
-  workflow_dispatch: # 支持手动一键触发
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest # x86资源充足，几乎不排队
+    runs-on: ubuntu-latest
     steps:
       - name: 拉取仓库全部代码
         uses: actions/checkout@v4
 
       - name: 配置Android NDK环境
-        uses: android-actions/setup-ndk@v1
+        uses: android-actions/setup-ndk@v2
         with:
           ndk-version: r27d
 
       - name: 交叉编译生成ARM64程序
         run: |
-          mkdir build
+          mkdir -p build
           cd build
-          # 此处后续替换为你的源码编译命令即可
           echo "NDK环境就绪，可编译ARM64架构可执行文件"
